@@ -1,4 +1,4 @@
-EduComic Pro 🎨📚
+# EduComic Pro 🎨📚
 
 EduComic Pro is an AI-powered educational tool that turns complex topics or YouTube videos into engaging, age-appropriate comic strips.
 
@@ -10,7 +10,7 @@ Multi-Source Input: Generate comics from a simple text topic or by pasting a You
 
 Video Intelligence: Automatically downloads audio, transcribes it locally using Whisper, and extracts key educational concepts.
 
-Age Adaptation Engine:
+Age Adaptation Engine :
 
 Toddlers (2-5): Simple words, cute vector art, slow pacing.
 
