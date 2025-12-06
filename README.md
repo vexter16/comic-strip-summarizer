@@ -61,9 +61,7 @@ FFmpeg (Required for audio processing)
 
 Navigate to the project root and create a virtual environment:
 
-# Create folder for backend
-mkdir backend
-cd backend
+
 
 # Create virtual env
 python -m venv venv
