@@ -1,0 +1,75 @@
+Objective: Deploy the Docker image created in Task 4 to Kubernetes, expose it as a service, and scale the application.
+
+1. Start Minikube & Load Image
+
+Since Minikube runs in its own environment, we need to load our local Docker image into it.
+
+# 1. Start Minikube using Docker driver
+minikube start --driver=docker
+
+# 2. Load the image from Task 4 into Minikube
+minikube image load html-app:1.0
+
+
+2. Create Deployment YAML
+
+Create a file named app.yaml to define the deployment.
+
+gedit app.yaml
+
+
+Content for app.yaml:
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+      - name: myapp
+        image: html-app:1.0
+        imagePullPolicy: Never
+
+
+Important: imagePullPolicy: Never ensures Kubernetes uses the local image we loaded, rather than trying to pull it from Docker Hub.
+
+3. Apply Deployment & Verify
+
+# 1. Apply the configuration
+kubectl apply -f app.yaml
+
+# 2. Check if the pod is running
+kubectl get pods
+
+
+4. Expose the Application
+
+Expose the deployment so it can be accessed. We use NodePort for local access.
+
+# 1. Expose deployment
+kubectl expose deployment app-deploy --type=NodePort --port=80
+
+# 2. Get the service URL (to access in browser)
+minikube service app-deploy --url
+
+
+Copy the URL provided by the last command and paste it into your browser.
+
+5. Scale the Application
+
+Scale the deployment to run multiple copies (replicas) of the pod.
+
+# 1. Scale to 3 replicas
+kubectl scale deployment app-deploy --replicas=3
+
+# 2. Verify that 3 pods are running
+kubectl get pods
