@@ -1,0 +1,183 @@
+Objective: Serve a machine learning model using FastAPI by developing a /predict REST endpoint with input validation, writing test cases, containerizing the service, and verifying predictions through curl.
+
+Prerequisites
+
+Ensure you have the necessary Python libraries installed. You can install them via pip:
+
+pip install fastapi uvicorn scikit-learn joblib pytest httpx
+
+
+Step 1: Train and Save the Model (train.py)
+
+First, we need a simple trained model to serve. We will create a linear regression model and save it as a .pkl file.
+
+Create a directory for the task (e.g., question10) and navigate into it.
+
+Create train.py:
+
+from sklearn.linear_model import LinearRegression
+import joblib
+
+# 1. Initialize the model
+model = LinearRegression()
+
+# 2. Create dummy data (2D array for X)
+# X = [[1], [2], [3]], y = [2, 4, 6] (y = 2x)
+X = [[1], [2], [3]]
+y = [2, 4, 6]
+
+# 3. Train the model
+model.fit(X, y)
+
+# 4. Save the model to a file
+joblib.dump(model, "model.pkl")
+
+
+Run the script to generate model.pkl:
+
+python3 train.py
+
+
+Step 2: Create FastAPI Application (main.py)
+
+Now, we create the application to serve the model.
+
+Create main.py:
+
+from fastapi import FastAPI
+from pydantic import BaseModel
+import joblib
+
+# 1. Initialize FastAPI app
+app = FastAPI()
+
+# 2. Load the trained model
+model = joblib.load("model.pkl")
+
+# 3. Define Input Validation using Pydantic
+# This ensures 'x' must be a float; otherwise, it returns an error.
+class Input(BaseModel):
+    x: float
+
+# 4. Define the /predict endpoint
+@app.post("/predict")
+def predict(data: Input):
+    # Prepare input for the model (requires 2D array)
+    input_data = [[data.x]]
+    
+    # Make prediction
+    prediction = model.predict(input_data)[0]
+    
+    # Return result
+    return {"prediction": prediction}
+
+
+Run Locally (Optional Verification)
+
+You can test if it works locally before containerizing.
+
+uvicorn main:app --reload
+
+
+Server will start at http://127.0.0.1:8000.
+
+Step 3: Write Test Cases (test_api.py)
+
+We need to validate that our API works correctly using pytest.
+
+Create test_api.py:
+
+from fastapi.testclient import TestClient
+from main import app
+
+# Initialize test client
+client = TestClient(app)
+
+def test_predict():
+    # Send a POST request to /predict with test data x=6
+    response = client.post("/predict", json={"x": 6})
+    
+    # Assert that the status code is 200 (OK)
+    assert response.status_code == 200
+    
+    # Assert that the prediction logic is correct (2 * 6 = 12)
+    # Note: Linear regression might return close floating point values (e.g. 11.999 or 12.0001)
+    # For this simple case, checking status 200 is often sufficient for the lab.
+
+
+Run the test:
+
+pytest
+
+
+Output should show 1 passed.
+
+Step 4: Containerization with Docker
+
+We will package the application and its dependencies into a Docker container.
+
+1. Create requirements.txt
+
+List all libraries used.
+
+fastapi
+uvicorn
+scikit-learn
+joblib
+pytest
+httpx
+pydantic
+
+
+(Tip: You can use pip freeze > requirements.txt if in a clean environment).
+
+2. Create Dockerfile
+
+Define how to build the image.
+
+# Base image
+FROM python:3.11
+
+# Set working directory inside container
+WORKDIR /app
+
+# Copy all files from local to container
+COPY . .
+
+# Install dependencies
+RUN pip install -r requirements.txt
+
+# Command to run the app
+# host 0.0.0.0 makes it accessible outside the container
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+
+3. Build the Docker Image
+
+sudo docker build -t ml-api .
+
+
+4. Run the Docker Container
+
+Map port 8000 of the host to port 8000 of the container.
+
+sudo docker run -p 8000:8000 ml-api
+
+
+Step 5: Verify with CURL
+
+Once the Docker container is running, use curl to send a prediction request.
+
+Open a new terminal and run:
+
+curl -X POST [http://127.0.0.1:8000/predict](http://127.0.0.1:8000/predict) \
+     -H "Content-Type: application/json" \
+     -d '{"x": 10}'
+
+
+Expected Output:
+
+{"prediction": 20.0}
+
+
+(The prediction might vary slightly like 19.999... depending on the model training, but it should be close to 20).
