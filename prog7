@@ -1,0 +1,112 @@
+Task 9: Data Ingestion & Versioning with DVC
+
+Objective: Implement data ingestion, cleaning, and versioning pipelines using Data Version Control (DVC).
+
+1. Install DVC
+
+Open your terminal (ensure you are in your virtual environment if you have one, or install globally) and install DVC via pip.
+
+pip install dvc
+
+
+2. Create Project & Directories
+
+Create and navigate to the project folder:
+
+mkdir dvc-project
+cd dvc-project
+
+
+Initialize Git and DVC:
+
+git init
+dvc init
+
+
+Create folder structure:
+We need a data folder with raw and processed subfolders, and a scripts folder.
+
+mkdir -p data/raw data/processed scripts
+
+
+3. Create Raw Data
+
+Create a simple CSV file to simulate raw data.
+
+gedit data/raw/data.csv
+
+
+Content for data/raw/data.csv:
+(Save this exactly as shown)
+
+1,10
+2,20
+3,30
+
+
+4. Create Cleaning Script
+
+Create a Python script that reads the raw data, processes it (multiplies value by 2), and saves it to the processed folder.
+
+gedit scripts/clean.py
+
+
+Content for scripts/clean.py:
+
+import pandas as pd
+
+# Read the raw CSV file (no header)
+df = pd.read_csv('data/raw/data.csv', header=None)
+
+# Name the columns
+df.columns = ['id', 'value']
+
+# Process data: Multiply 'value' column by 2
+df['value'] = df['value'] * 2
+
+# Save to processed folder without index or header
+df.to_csv('data/processed/clean.csv', index=False)
+
+
+5. Create DVC Pipeline Stage
+
+We will use dvc stage add to define the pipeline. This command tracks dependencies (-d) and outputs (-o).
+
+-n clean: Name of the stage.
+
+-d scripts/clean.py: Dependency script.
+
+-d data/raw/data.csv: Dependency data.
+
+-o data/processed/clean.csv: Output file.
+
+python scripts/clean.py: Command to run.
+
+dvc stage add -n clean \
+-d scripts/clean.py \
+-d data/raw/data.csv \
+-o data/processed/clean.csv \
+python scripts/clean.py
+
+
+This creates a dvc.yaml and dvc.lock file.
+
+6. Run the Pipeline
+
+Execute the pipeline using dvc repro.
+
+dvc repro
+
+
+Check if the output file was created:
+
+ls data/processed
+cat data/processed/clean.csv
+
+
+7. Version Control with Git
+
+Track the changes (including DVC metadata files) using Git.
+
+git add .
+git commit -m "Add Data Pipeline"
