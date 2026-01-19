@@ -1,0 +1,109 @@
+Task 1: Create Project & Push to GitHub
+
+Objective: Create a simple User Registration Form and push it to a new GitHub repository.
+
+1. Setup & Configuration
+
+Open your terminal and run the following commands:
+
+# 1. Create a directory for the project
+mkdir question1
+
+# 2. Navigate into the directory
+cd question1
+
+# 3. Configure Git (if not already done)
+git config user.name "Your Name"
+git config user.email "your_email@example.com"
+
+# 4. Initialize Git repository
+git init
+
+
+2. Create the HTML File
+
+Create a file named form.html.
+
+gedit form.html
+
+
+Code for form.html:
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Event Registration Form</title>
+</head>
+<body>
+    <h1>Event Registration Form</h1>
+    <form>
+        <label>Name: </label><input type="text"><br>
+        <label>Email: </label><input type="text"><br>
+        <label>Phone: </label><input type="text"><br>
+        <button type="submit">Register</button>
+    </form>
+</body>
+</html>
+
+
+3. Push to GitHub
+
+Create a new repository on GitHub (e.g., named question01).
+
+Run the following commands in your terminal:
+
+# 1. Add the file to staging area
+git add .
+
+# 2. Commit the file
+git commit -m "First Commit"
+
+# 3. Rename master branch to main
+git branch -M main
+
+# 4. Link local repo to GitHub repo
+# Replace <Your-Repo-URL> with the link from GitHub
+git remote add origin <Your-Repo-URL>
+
+# 5. Push to GitHub
+git push -u origin main
+
+
+Note: Use your Personal Access Token (PAT) as the password when pushing to GitHub.
+
+Task 2: Branching, Modifying & Merging
+
+Objective: Create a new branch, modify the form by adding a "Department" field, merge changes back to main, and push.
+
+1. Create and Switch to New Branch
+
+# Create and switch to a new branch named 'update-form'
+git branch update-form
+git checkout update-form
+
+
+2. Modify the Code
+
+Open form.html and add the Department field.
+
+<!-- Added Field inside the form tag -->
+<label>Department: </label><input type="text"><br>
+
+
+3. Commit and Push Branch Changes
+
+git add form.html
+git commit -m "New Changes"
+git push origin update-form
+
+
+4. Merge to Main and Push
+
+# Switch back to main
+git checkout main
+
+# Merge the branch
+git merge update-form
+
+# Push the merged changes
+git push origin main
