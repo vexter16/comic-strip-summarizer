@@ -1,0 +1,93 @@
+Objective: Perform experiment tracking using MLflow by training a machine learning model, logging metrics (accuracy), parameters, and artifacts, and comparing multiple runs to identify the best-performing model.
+
+1. Prerequisites & Installation
+
+Ensure you are in your Python virtual environment (if created in Task 7) and install the necessary libraries.
+
+pip install mlflow scikit-learn
+
+
+2. Create the Experiment Script
+
+Create a Python script named experiment.py (or quest8.py).
+
+gedit experiment.py
+
+
+Content for experiment.py:
+
+from sklearn.datasets import load_iris
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+import mlflow
+import mlflow.sklearn
+
+# 1. Load Data
+# We use return_X_y=True to get features (X) and target (y) directly
+X, y = load_iris(return_X_y=True)
+
+# 2. Split Data into Train and Test sets
+# test_size=0.2 means 20% data for testing, 80% for training
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+
+# 3. Experiment Loop
+# We iterate through different values of the 'C' hyperparameter (Inverse of regularization strength)
+for c in [0.1, 1.0]:
+    # Start an MLflow run for tracking
+    with mlflow.start_run():
+        
+        # Initialize the model with the current parameter C
+        m = LogisticRegression(C=c, max_iter=200)
+        
+        # Train the model
+        m.fit(X_train, y_train)
+        
+        # Predict on test set
+        y_pred = m.predict(X_test)
+        
+        # Calculate accuracy score
+        acc_score = accuracy_score(y_test, y_pred)
+        
+        # --- MLflow Logging ---
+        # Log the parameter 'C'
+        mlflow.log_param("C", c)
+        
+        # Log the metric 'accuracy'
+        mlflow.log_metric("accuracy", acc_score)
+        
+        # Log the actual model
+        mlflow.sklearn.log_model(m, "model")
+        
+        print(f"Run completed with C={c}, Accuracy={acc_score}")
+
+
+3. Run the Experiment
+
+Execute the script to perform the training and logging.
+
+python3 experiment.py
+
+
+You should see output indicating that runs completed for C=0.1 and C=1.0.
+
+4. Analyze Results in MLflow UI
+
+Start the MLflow UI:
+
+mlflow ui
+
+
+Access the Dashboard:
+
+Open your web browser and go to http://127.0.0.1:5000 (or the address shown in your terminal).
+
+Compare Runs:
+
+You will see a list of experiments (runs).
+
+Click on the checkboxes next to the runs to select them.
+
+Click Compare to visualize the differences in parameters (C) and metrics (accuracy).
+
+This helps you identify which parameter value produced the best model.
