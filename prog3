@@ -1,0 +1,110 @@
+Task 4: Dockerize a Web Application
+
+Objective: Create a simple HTML web application, write a Dockerfile, build an image, and run the container mapping port 80 to 8080.
+
+1. Setup & Installation
+
+If Docker is not installed, install it first:
+
+sudo apt update
+sudo apt install docker.io -y
+sudo systemctl start docker
+sudo systemctl enable docker
+
+
+2. Create Project Directory & Files
+
+Create Directory:
+
+mkdir appDocker
+cd appDocker
+
+
+Create index.html:
+
+gedit index.html
+
+
+Content:
+
+<h1>Hello From Docker</h1>
+
+
+Create Dockerfile:
+Note: The filename must be exactly Dockerfile (Capital 'D').
+
+gedit Dockerfile
+
+
+Content:
+
+# Use Nginx as the base image
+FROM nginx:latest
+
+# Copy local index.html to the Nginx html directory
+COPY index.html /usr/share/nginx/html/
+
+
+3. Build the Docker Image
+
+Run the build command. The -t flag tags the image with a name and version.
+
+# Syntax: sudo docker build -t <image-name>:<tag> .
+sudo docker build -t html-app:1.0 .
+
+
+Note: The . at the end specifies the current directory as the build context.
+
+4. Run the Container
+
+Run the container in detached mode (-d) and map port 8080 on the host to port 80 in the container (-p).
+
+# Syntax: sudo docker run -d -p <host-port>:<container-port> <image-name>:<tag>
+sudo docker run -d -p 8080:80 html-app:1.0
+
+
+5. Verify
+
+Open your web browser and go to http://localhost:8080. You should see "Hello From Docker".
+
+Task 5: Docker Operations
+
+Objective: Perform standard Docker operations: listing, stopping, and removing containers and images.
+
+1. List Images and Containers
+
+List all images:
+
+sudo docker images
+
+
+List running containers:
+
+sudo docker ps
+
+
+List all containers (running and stopped):
+
+sudo docker ps -a
+
+
+2. Stop a Container
+
+Find the CONTAINER ID from the docker ps command and use it to stop the container.
+
+sudo docker stop <CONTAINER_ID>
+
+
+3. Remove a Container
+
+Once stopped, you can remove the container to free up space/names.
+
+sudo docker rm <CONTAINER_ID>
+
+
+4. Remove an Image
+
+To delete the image we built:
+
+# Syntax: sudo docker rmi <image-name>:<tag>
+sudo docker rmi html-app:1.0
