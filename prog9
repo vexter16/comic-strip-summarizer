@@ -1,0 +1,104 @@
+Task 11: Model Optimization with ONNX
+
+Objective: Optimize and standardize model inference using ONNX by exporting a trained ML model, running inference with ONNX Runtime, and benchmarking performance against the native scikit-learn model.
+
+1. Prerequisites & Installation
+
+Open your terminal and install the required libraries (ensure you are in your virtual environment if you have one):
+
+pip install skl2onnx onnxruntime scikit-learn numpy
+
+
+2. Create the Optimization Script
+
+Create a file named onnx_optimization.py (or ques9.py).
+
+gedit onnx_optimization.py
+
+
+Content for onnx_optimization.py:
+
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+import numpy as np
+
+# 1. Import ONNX specific libraries
+from skl2onnx import to_onnx
+import onnxruntime as ort
+import time
+
+# 2. Create Dataset & Train Model
+# Generate random data
+X = np.random.rand(1000, 1).astype(np.float32)
+y = 3 * X + 5
+
+# Initialize and train the model
+model = LinearRegression()
+model.fit(X, y)
+print("Model trained.")
+
+# 3. Export to ONNX
+# Convert scikit-learn model to ONNX
+onnx_model = to_onnx(model, X)
+
+# Save the ONNX model to a file
+# We use binary write mode ('wb') to save the serialized string
+with open("model.onnx", "wb") as f:
+    f.write(onnx_model.SerializeToString())
+print("Model exported to model.onnx")
+
+# 4. Create Inference Session (ONNX Runtime)
+# This loads the ONNX model for execution
+sess = ort.InferenceSession("model.onnx")
+
+# 5. Benchmarking Performance
+print("\nStarting Benchmark (10,000 iterations)...")
+
+# --- Measure Scikit-learn Inference Time ---
+t0 = time.time()
+for _ in range(10000):
+    model.predict(X)
+t1 = time.time()
+sklearn_time = t1 - t0
+
+# --- Measure ONNX Runtime Inference Time ---
+t0 = time.time()
+for _ in range(10000):
+    # ONNX runtime requires inputs as a dictionary
+    # The input name can be found via sess.get_inputs()[0].name, but here we assume 'X'
+    sess.run(None, {'X': X})
+t1 = time.time()
+onnx_time = t1 - t0
+
+# 6. Compare Results
+print(f"Scikit-learn time: {sklearn_time:.4f} seconds")
+print(f"ONNX Runtime time: {onnx_time:.4f} seconds")
+
+# Typically, ONNX runtime is significantly faster for larger/complex models
+if onnx_time < sklearn_time:
+    print("Result: ONNX Runtime was faster!")
+else:
+    print("Result: Scikit-learn was faster (may happen for very simple models).")
+
+
+3. Run the Script
+
+Execute the Python script:
+
+python3 onnx_optimization.py
+
+
+4. Analyze Output
+
+You should see output similar to this:
+
+Model trained.
+Model exported to model.onnx
+
+Starting Benchmark (10,000 iterations)...
+Scikit-learn time: 0.8920 seconds
+ONNX Runtime time: 0.4510 seconds
+Result: ONNX Runtime was faster!
+
+
+Note: The actual times will vary based on your system performance, but ONNX runtime is generally faster, especially for complex models.
